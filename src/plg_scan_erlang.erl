@@ -193,7 +193,9 @@ character_match(Str, Matches, [Group|Groups]) ->
 character_term(normal,  [C])       -> C;
 character_term(control, [C])       -> C band 31;
 character_term(escape,  [C])       -> maps:get(C, ?ERLANG_ESCAPE_MAP);
-character_term(octal,   [X, Y, Z]) -> (X - $0) * 64 + (Y - $0) * 8 + Z - $0.
+character_term(octal,   [X, Y, Z]) -> (X - $0) * 64 + (Y - $0) * 8 + Z - $0;
+character_term(octal,   [Y, Z])    -> (Y - $0) * 8 + Z - $0;
+character_term(octal,   [Z])       -> Z - $0.
 
 
 do_integer(Chars, Matches, Start, End) ->

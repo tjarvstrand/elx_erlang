@@ -92,8 +92,13 @@ character_test_() ->
                  scan("$\\^t")),
    ?_assertEqual({error, {syntax_error, {{1, 1, 1}, "$"}}},
                  scan("$")),
-   ?_assertEqual({ok, [token(character, $\123, "$\\123", {1, 1, 1}, {5, 1, 5})]},
-                 scan("$\\123"))
+   ?_assertEqual({ok,
+                  [token(character, $\123, "$\\123", {1, 1, 1}, {5, 1, 5})]},
+                 scan("$\\123")),
+   ?_assertEqual({ok, [token(character, $\12, "$\\12", {1, 1, 1}, {4, 1, 4})]},
+                 scan("$\\12")),
+   ?_assertEqual({ok, [token(character, $\1, "$\\1", {1, 1, 1}, {3, 1, 3})]},
+                 scan("$\\1"))
   ].
 
 punctuation_test_() ->
