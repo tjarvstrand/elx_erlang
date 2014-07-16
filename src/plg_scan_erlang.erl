@@ -106,6 +106,15 @@
 
 -define(ERLANG_INTEGER_BASE_MAX, 32).
 
+-define(ERLANG_ESCAPE_MAP, #{$b => $\b,
+                             $d => $\d,
+                             $e => $\e,
+                             $f => $\f,
+                             $n => $\n,
+                             $r => $\r,
+                             $s => $\s,
+                             $t => $\t,
+                             $v => $\v}).
 %%%_* Types ====================================================================
 
 %%%_* Grammar ==================================================================
@@ -183,16 +192,8 @@ character_match(Str, Matches, [Group|Groups]) ->
 
 character_term(normal,  [C])       -> C;
 character_term(control, [C])       -> C band 31;
-character_term(escape,  "b")       -> $\b;
-character_term(escape,  "d")       -> $\d;
-character_term(escape,  "e")       -> $\e;
-character_term(escape,  "f")       -> $\f;
-character_term(escape,  "n")       -> $\n;
-character_term(escape,  "r")       -> $\r;
-character_term(escape,  "s")       -> $\s;
-character_term(escape,  "t")       -> $\t;
-character_term(escape,  "v")       -> $\v;
-character_term(octal,   [X, Y, Z]) -> (X * 64) + (Y * 8) + Z - ($0 * 8).
+character_term(escape,  [C])       -> maps:get(C, ?ERLANG_ESCAPE_MAP);
+character_term(octal,   [X, Y, Z]) -> (X - $0) * 64 + (Y - $0) * 8 + Z - $0.
 
 
 do_integer(Chars, Matches, Start, End) ->
