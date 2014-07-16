@@ -49,8 +49,19 @@ symbol_test_() ->
 string_test_() ->
   [?_assertEqual({ok, [token(atom, a, "'a'", {1, 1, 1}, {3, 1, 3})]},
                  scan("'a'")),
+   ?_assertEqual({ok,
+                  [token(string, "a\nb", "\"a\nb\"", {1, 1, 1}, {5, 2, 2})]},
+                 scan("\"a\nb\"")),
    ?_assertEqual({ok, [token(string, "a", "\"a\"", {1, 1, 1}, {3, 1, 3})]},
-                 scan("\"a\""))
+                 scan("\"a\"")),
+   ?_assertEqual({ok, [token(string,
+                             "a\\\"b",
+                             "\"a\\\"b\"",
+                             {1, 1, 1},
+                             {6, 1, 6})]},
+                 scan("\"a\\\"b\"")),
+   ?_assertEqual({error, {syntax_error, {{5, 1, 5}, "\""}}},
+                 scan("\"a\"b\""))
   ].
 
 integer_test_() ->
@@ -124,6 +135,11 @@ expression_test_() ->
                        token(punctuation, '+', "+",  {4, 1, 4}, {4, 1, 4}),
                        token(integer,     16,  "16", {6, 1, 6}, {7, 1, 7})]},
                  scan("16 + 16"))
+  ].
+
+unterminated_string_test_() ->
+  [?_assertEqual({error, {unterminated_string, {{1, 1, 1}, ""}}},
+                 scan("\"sth e sth"))
   ].
 
 %%%_* Test helpers =============================================================
