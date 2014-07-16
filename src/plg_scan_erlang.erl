@@ -30,8 +30,9 @@
          atom/4,
          character/4,
          float/4,
-         keyword/4,
          integer/4,
+         keyword/4,
+         punctuation/4,
          string/4,
          variable/4]).
 
@@ -69,6 +70,40 @@
                           "when",
                           "xor"]).
 
+-define(ERLANG_PUNCTUATION, ["->",
+                             "!",
+                             ":",
+                             ",",
+                             "--",
+                             "/",
+                             "==",
+                             "=:=",
+                             "=/=",
+                             "=",
+                             "/=",
+                             ">=",
+                             ">>",
+                             ">",
+                             "#\\s*\\{",
+                             "\\+\\+",
+                             "=<",
+                             "<<",
+                             "<",
+                             "-",
+                             "\\.",
+                             "\\+",
+                             ";",
+                             "\\*",
+                             "\\|\\|",
+                             "\\|",
+                             "\\?",
+                             "\\(",
+                             "\\)",
+                             "\\{",
+                             "\\}",
+                             "\\[",
+                             "\\]"]).
+
 -define(ERLANG_INTEGER_BASE_MAX, 32).
 
 %%%_* Types ====================================================================
@@ -77,6 +112,7 @@
 
 grammar() ->
     [{?ERLANG_KEYWORDS,                              fun keyword/4},
+     {?ERLANG_PUNCTUATION,                           fun punctuation/4},
      {"(?:-|\\+)?[0-9]+\\.[0-9]+(e(-|\\+)?[0-9]+)?", fun float/4},
      {"(?<sign>-|\\+)?"
       "((?<base>[0-9]+)(#))?"
@@ -118,23 +154,28 @@ keyword(Chars, _Matches, Start, End) ->
   {token,
    parse_lib_scan:token(keyword, list_to_atom(Chars), Chars, Start, End)}.
 
+punctuation(Chars, _Matches, Start, End) ->
+  Term = map_punctuation(Chars),
+  {token, parse_lib_scan:token(punctuation, Term, Chars, Start, End)}.
+
 variable(Chars, _Matches, Start, End) ->
   {token,
    parse_lib_scan:token(variable, list_to_atom(Chars), Chars, Start, End)}.
 
 string(Chars, _Matches, Start, End) ->
   Term = string:strip(Chars, both, $"),
-  {token,
-   parse_lib_scan:token(string, Term, Chars, Start, End)}.
+  {token, parse_lib_scan:token(string, Term, Chars, Start, End)}.
 
 
 %%%_* Internal functions =======================================================
+
+map_punctuation("#" ++ _) -> '#{';
+map_punctuation(P)        -> list_to_atom(P).
 
 character_match(Str, Matches) ->
   character_match(Str, Matches, [normal, escape, control, octal]).
 
 character_match(Str, Matches, [Group|Groups]) ->
-  io:fwrite(user, <<"~p ~p ~p: Matches = ~p~n">>, [self(), ?MODULE, ?LINE, Matches]),
   case parse_lib_scan:match_named_group_string(Str, Group, Matches) of
     {error, nomatch}  -> character_match(Str, Matches, Groups);
     {ok,    MatchStr} -> {Group, MatchStr}

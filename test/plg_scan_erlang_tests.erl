@@ -94,24 +94,39 @@ character_test_() ->
                  scan("$"))
   ].
 
+punctuation_test_() ->
+  [?_assertEqual({ok, [token(punctuation, '(', "(", {1, 1, 1}, {1, 1, 1})]},
+                 scan("(")),
+   ?_assertEqual({ok, [token(punctuation, '#{', "#{", {1, 1, 1}, {2, 1, 2})]},
+                 scan("#{")),
+   ?_assertEqual({ok, [token(punctuation, '#{', "#  {", {1, 1, 1}, {4, 1, 4})]},
+                 scan("#  {"))
+  ].
 
 %%%_* Test helpers =============================================================
 
 scan(Str) ->
-    parse_lib_scan:string(Str,
-                          plg_scan_erlang:grammar(),
-                          [{re_groups, named_only}]).
+    %% DebugF = fun(Fmt0, Args) ->
+    %%                  io:fwrite(user, list_to_binary(Fmt0 ++ "~n"), Args)
+    %%          end,
+  parse_lib_scan:string(Str,
+                        plg_scan_erlang:grammar(),
+                        [{re_groups, named_only}
+                         %% {debug_fun, DebugF},
+                         %% {debug, true}
+                        ]
+                       ).
 
 token(Type,
       Term,
       Str,
       {StartIndex, StartLine, StartCol},
       {EndIndex, EndLine, EndCol}) ->
-    parse_lib_scan:token(Type,
-                         Term,
-                         Str,
-                         parse_lib_scan:point(StartIndex, StartLine, StartCol),
-                         parse_lib_scan:point(EndIndex, EndLine, EndCol)).
+  parse_lib_scan:token(Type,
+                       Term,
+                       Str,
+                       parse_lib_scan:point(StartIndex, StartLine, StartCol),
+                       parse_lib_scan:point(EndIndex, EndLine, EndCol)).
 
 %%%_* Emacs ====================================================================
 %%% Local Variables:
