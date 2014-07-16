@@ -34,6 +34,7 @@
          keyword/4,
          punctuation/4,
          string/4,
+         unterminated_quote/4,
          variable/4,
          whitespace/4]).
 
@@ -121,21 +122,35 @@
 %%%_* Grammar ==================================================================
 
 grammar() ->
-    [{"\\s+",                                              fun whitespace/4},
-     {?ERLANG_KEYWORDS,                                    fun keyword/4},
-     {?ERLANG_PUNCTUATION,                                 fun punctuation/4},
-     {"(?:-|\\+)?[0-9]+\\.[0-9]+(e(-|\\+)?[0-9]+)?\\b",    fun float/4},
-     {"(?<sign>-|\\+)?"
-      "((?<base>[0-9]+)(#))?"
-      "(?<value>[0-9]+)\\b",                               fun integer/4},
-     {{["\\$\\\\(?<octal>[0-7]?[0-7]?[0-7])",
-        "\\$\\\\\\^(?<control>[A-Za-z])",
-        "\\$\\\\(?<escape>[bdefnrstv])",
-        "\\$\\\\?(?<normal>.)"],
-       [dotall]},                                          fun character/4},
-     {{"\"(\\\\?.)*?\"", [dotall]},                        fun string/4},
-     {{["[a-z][a-zA-Z0-9_@]*", "'(\\\\?.)*?'"], [dotall]}, fun atom/4},
-     {"[A-Z_][a-zA-Z0-9_]*\\b",                            fun variable/4}].
+  [{"\\s+",                                           fun whitespace/4},
+
+   {?ERLANG_KEYWORDS,                                 fun keyword/4},
+
+   {?ERLANG_PUNCTUATION,                              fun punctuation/4},
+
+   {"(?:-|\\+)?[0-9]+\\.[0-9]+(e(-|\\+)?[0-9]+)?\\b", fun float/4},
+
+   {"(?<sign>-|\\+)?"
+    "((?<base>[0-9]+)(#))?"
+    "(?<value>[0-9]+)\\b",                            fun integer/4},
+
+   {{["\\$\\\\(?<octal>[0-7]?[0-7]?[0-7])",
+      "\\$\\\\\\^(?<control>[A-Za-z])",
+      "\\$\\\\(?<escape>[bdefnrstv])",
+      "\\$\\\\?(?<normal>.)"],
+     [dotall]},                                       fun character/4},
+   {{"\"(\\\\?.)*?\"",
+
+     [dotall]},                                       fun string/4},
+
+   {{["[a-z][a-zA-Z0-9_@]*",
+      "'(\\\\?.)*?'"],
+     [dotall]},                                       fun atom/4},
+
+   {{"[\"']",
+     [dotall]},                                       fun unterminated_quote/4},
+
+   {"[A-Z_][a-zA-Z0-9_]*\\b",                         fun variable/4}].
 
 %%%_* Token parsers ============================================================
 
@@ -179,6 +194,9 @@ string(Chars, _Matches, Start, End) ->
 
 whitespace(Chars, _Matches, Start, End) ->
   {skip, parse_lib_scan:token(whitespace, Chars, Chars, Start, End)}.
+
+unterminated_quote(_Chars, _Matches, _Start, _End) ->
+  {error, unterminated_quote}.
 
 %%%_* Internal functions =======================================================
 

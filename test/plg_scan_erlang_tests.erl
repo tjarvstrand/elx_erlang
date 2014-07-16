@@ -60,7 +60,7 @@ string_test_() ->
                              {1, 1, 1},
                              {6, 1, 6})]},
                  scan("\"a\\\"b\"")),
-   ?_assertEqual({error, {syntax_error, {{5, 1, 5}, "\""}}},
+   ?_assertEqual({error, {unterminated_quote, {{5, 1, 5}, "\""}}},
                  scan("\"a\"b\""))
   ].
 
@@ -137,10 +137,6 @@ expression_test_() ->
                  scan("16 + 16"))
   ].
 
-unterminated_string_test_() ->
-  [?_assertEqual({error, {unterminated_string, {{1, 1, 1}, ""}}},
-                 scan("\"sth e sth"))
-  ].
 
 %%%_* Test helpers =============================================================
 
