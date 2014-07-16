@@ -1,29 +1,29 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% @doc Erlang grammar for parse_lib_scan
+%%% @doc Erlang grammar for elx_lex
 %%% @end
 %%% @author Thomas Järvstrand <tjarvstrand@gmail.com>
 %%% @copyright
 %%% Copyright 2012 Thomas Järvstrand <tjarvstrand@gmail.com>
 %%%
-%%% This file is part of parse_lib_grammars.
+%%% This file is part of ELX Erlang.
 %%%
-%%% parse_lib_grammars is free software: you can redistribute it and/or modify
+%%% ELX Erlang is free software: you can redistribute it and/or modify
 %%% it under the terms of the GNU General Public License as published by
 %%% the Free Software Foundation, either version 3 of the License, or
 %%% (at your option) any later version.
 %%%
-%%% parse_lib_grammars is distributed in the hope that it will be useful,
+%%% ELX Erlang is distributed in the hope that it will be useful,
 %%% but WITHOUT ANY WARRANTY; without even the implied warranty of
 %%% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 %%% GNU General Public License for more details.
 %%%
 %%% You should have received a copy of the GNU General Public License
-%%% along with parse_lib_grammars. If not, see <http://www.gnu.org/licenses/>.
+%%% along with ELX Erlang. If not, see <http://www.gnu.org/licenses/>.
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%_* Module declaration =======================================================
--module(plg_scan_erlang).
+-module(elx_erlang_lex).
 
 %%%_* Exports ==================================================================
 -export([grammar/0,
@@ -158,16 +158,16 @@ grammar() ->
 atom(Chars, _Matches, Start, End) ->
   Term = list_to_atom(string:strip(Chars, both, $')),
   {token,
-   parse_lib_scan:token(atom, Term, Chars, Start, End)}.
+   elx_lex:token(atom, Term, Chars, Start, End)}.
 
 character(Chars, Matches, Start, End) ->
   {Group, MatchStr} = character_match(Chars, Matches),
   Term              = character_term(Group, MatchStr),
-  {token, parse_lib_scan:token(character, Term, Chars, Start, End)}.
+  {token, elx_lex:token(character, Term, Chars, Start, End)}.
 
 float(Chars, _Matches, Start, End) ->
   {token,
-   parse_lib_scan:token(float, list_to_float(Chars), Chars, Start, End)}.
+   elx_lex:token(float, list_to_float(Chars), Chars, Start, End)}.
 
 integer(Chars, Matches, Start, End) ->
   try do_integer(Chars, Matches, Start, End)
@@ -178,22 +178,22 @@ integer(Chars, Matches, Start, End) ->
 
 keyword(Chars, _Matches, Start, End) ->
   {token,
-   parse_lib_scan:token(keyword, list_to_atom(Chars), Chars, Start, End)}.
+   elx_lex:token(keyword, list_to_atom(Chars), Chars, Start, End)}.
 
 punctuation(Chars, _Matches, Start, End) ->
   Term = map_punctuation(Chars),
-  {token, parse_lib_scan:token(punctuation, Term, Chars, Start, End)}.
+  {token, elx_lex:token(punctuation, Term, Chars, Start, End)}.
 
 variable(Chars, _Matches, Start, End) ->
   {token,
-   parse_lib_scan:token(variable, list_to_atom(Chars), Chars, Start, End)}.
+   elx_lex:token(variable, list_to_atom(Chars), Chars, Start, End)}.
 
 string(Chars, _Matches, Start, End) ->
   Term = string:strip(Chars, both, $"),
-  {token, parse_lib_scan:token(string, Term, Chars, Start, End)}.
+  {token, elx_lex:token(string, Term, Chars, Start, End)}.
 
 whitespace(Chars, _Matches, Start, End) ->
-  {skip, parse_lib_scan:token(whitespace, Chars, Chars, Start, End)}.
+  {skip, elx_lex:token(whitespace, Chars, Chars, Start, End)}.
 
 unterminated_quote(_Chars, _Matches, _Start, _End) ->
   {error, unterminated_quote}.
@@ -207,7 +207,7 @@ character_match(Str, Matches) ->
   character_match(Str, Matches, [normal, escape, control, octal]).
 
 character_match(Str, Matches, [Group|Groups]) ->
-  case parse_lib_scan:match_named_group_string(Str, Group, Matches) of
+  case elx_lex:match_named_group_string(Str, Group, Matches) of
     {error, nomatch}  -> character_match(Str, Matches, Groups);
     {ok,    MatchStr} -> {Group, MatchStr}
   end.
@@ -222,11 +222,11 @@ character_term(octal,   [Z])       -> Z - $0.
 
 do_integer(Chars, Matches, Start, End) ->
   SignStr =
-    case parse_lib_scan:match_named_group_string(Chars, sign, Matches) of
+    case elx_lex:match_named_group_string(Chars, sign, Matches) of
       {error, nomatch} -> "";
       {ok, SignStr0} -> SignStr0
     end,
-  Base = case parse_lib_scan:match_named_group_string(Chars, base, Matches) of
+  Base = case elx_lex:match_named_group_string(Chars, base, Matches) of
            {error, nomatch} -> 10;
            {ok, BaseStr}    ->
              case list_to_integer(BaseStr) of
@@ -236,9 +236,9 @@ do_integer(Chars, Matches, Start, End) ->
                  Base0
              end
          end,
-  {ok, ValueStr} = parse_lib_scan:match_named_group_string(Chars, value, Matches),
+  {ok, ValueStr} = elx_lex:match_named_group_string(Chars, value, Matches),
   Term = list_to_integer(SignStr ++ ValueStr, Base),
-  {token, parse_lib_scan:token(integer, Term, Chars, Start, End)}.
+  {token, elx_lex:token(integer, Term, Chars, Start, End)}.
 
 
 %%%_* Tests ====================================================================

@@ -1,29 +1,29 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% @doc Tests for plg_scan_erlang
+%%% @doc Tests for elx_erlang_lex
 %%% @end
 %%% @author Thomas Järvstrand <tjarvstrand@gmail.com>
 %%% @copyright
 %%% Copyright 2012 Thomas Järvstrand <tjarvstrand@gmail.com>
 %%%
-%%% This file is part of parse_lib_grammars.
+%%% This file is part of ELX Erlang.
 %%%
-%%% parse_lib_grammars is free software: you can redistribute it and/or modify
+%%% ELX Erlang is free software: you can redistribute it and/or modify
 %%% it under the terms of the GNU General Public License as published by
 %%% the Free Software Foundation, either version 3 of the License, or
 %%% (at your option) any later version.
 %%%
-%%% parse_lib_grammars is distributed in the hope that it will be useful,
+%%% ELX Erlang is distributed in the hope that it will be useful,
 %%% but WITHOUT ANY WARRANTY; without even the implied warranty of
 %%% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 %%% GNU General Public License for more details.
 %%%
 %%% You should have received a copy of the GNU General Public License
-%%% along with parse_lib_grammars. If not, see <http://www.gnu.org/licenses/>.
+%%% along with ELX Erlang. If not, see <http://www.gnu.org/licenses/>.
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%_* Module declaration =======================================================
--module(plg_scan_erlang_tests).
+-module(elx_erlang_lex_tests).
 
 %%%_* Includes =================================================================
 
@@ -144,24 +144,24 @@ scan(Str) ->
     %% DebugF = fun(Fmt0, Args) ->
     %%                  io:fwrite(user, list_to_binary(Fmt0 ++ "~n"), Args)
     %%          end,
-  parse_lib_scan:string(Str,
-                        plg_scan_erlang:grammar(),
-                        [
-                         %% {debug_fun, DebugF},
-                         {debug, true},
-                         {re_groups, named_only}]
-                       ).
+  elx_lex:string(Str,
+                 elx_erlang_lex:grammar(),
+                 [
+                  %% {debug_fun, DebugF},
+                  {debug, true},
+                  {re_groups, named_only}]
+                ).
 
 token(Type,
       Term,
       Str,
       {StartIndex, StartLine, StartCol},
       {EndIndex, EndLine, EndCol}) ->
-  parse_lib_scan:token(Type,
-                       Term,
-                       Str,
-                       parse_lib_scan:point(StartIndex, StartLine, StartCol),
-                       parse_lib_scan:point(EndIndex, EndLine, EndCol)).
+  elx_lex:token(Type,
+                Term,
+                Str,
+                elx_lex:point(StartIndex, StartLine, StartCol),
+                elx_lex:point(EndIndex, EndLine, EndCol)).
 
 %%%_* Emacs ====================================================================
 %%% Local Variables:

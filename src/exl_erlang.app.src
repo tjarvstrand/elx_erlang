@@ -1,4 +1,4 @@
-{application, parse_lib_grammars,
+{application, elx_erlang,
  [{description, ""},
   {vsn, "1"},
   {registered, []},
