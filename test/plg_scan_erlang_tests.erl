@@ -41,7 +41,9 @@ symbol_test_() ->
    ?_assertEqual({ok, [token(variable, 'Foo', "Foo", {1, 1, 1}, {3, 1, 3})]},
                  scan("Foo")),
    ?_assertEqual({error, {syntax_error, {{1, 1, 1}, "1foo"}}},
-                 scan("1foo"))
+                 scan("1foo")),
+   ?_assertEqual({error, {syntax_error, {{3, 1, 3}, "2foo"}}},
+                 scan("1.2foo"))
   ].
 
 string_test_() ->
@@ -104,10 +106,24 @@ character_test_() ->
 punctuation_test_() ->
   [?_assertEqual({ok, [token(punctuation, '(', "(", {1, 1, 1}, {1, 1, 1})]},
                  scan("(")),
+   ?_assertEqual({ok, [token(punctuation, '+', "+", {1, 1, 1}, {1, 1, 1})]},
+                 scan("+")),
    ?_assertEqual({ok, [token(punctuation, '#{', "#{", {1, 1, 1}, {2, 1, 2})]},
                  scan("#{")),
    ?_assertEqual({ok, [token(punctuation, '#{', "#  {", {1, 1, 1}, {4, 1, 4})]},
                  scan("#  {"))
+  ].
+
+whitespace_test_() ->
+  [?_assertEqual({ok, []},
+                 scan(" "))
+  ].
+
+expression_test_() ->
+  [?_assertEqual({ok, [token(integer,     16,  "16", {1, 1, 1}, {2, 1, 2}),
+                       token(punctuation, '+', "+",  {4, 1, 4}, {4, 1, 4}),
+                       token(integer,     16,  "16", {6, 1, 6}, {7, 1, 7})]},
+                 scan("16 + 16"))
   ].
 
 %%%_* Test helpers =============================================================
@@ -118,10 +134,10 @@ scan(Str) ->
     %%          end,
   parse_lib_scan:string(Str,
                         plg_scan_erlang:grammar(),
-                        [{re_groups, named_only}
+                        [
                          %% {debug_fun, DebugF},
-                         %% {debug, true}
-                        ]
+                         {debug, true},
+                         {re_groups, named_only}]
                        ).
 
 token(Type,
